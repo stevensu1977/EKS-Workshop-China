@@ -13,7 +13,7 @@
 
 #请使用EKS-Workshop-China/resource/aws-ebs-csi-driver/example-iam-policy.json
 aws iam create-policy \
-    --policy-name ALBIngressControllerIAMPolicy \
+    --policy-name Amazon_EBS_CSI_Driver \
     --policy-document file://./example-iam-policy.json \
     --region cn-northwest-1
         
