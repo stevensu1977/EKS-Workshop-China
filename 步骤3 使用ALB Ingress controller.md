@@ -5,16 +5,13 @@
 > 3.1.1 创建EKS OIDC Provider (这个操作只需要做一次）
 
 ```bash
-eksctl utils associate-iam-oidc-provider \
-             --cluster=eksworkshop \ 
-             --approve \
-             --region cn-northwest-1
+eksctl utils associate-iam-oidc-provider --cluster=eksworkshop --approve 
+             
 ```
 
 > 3.1.2 创建所需要的IAM policy
 [https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.5/docs/examples/iam-policy.json](https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.5/docs/examples/iam-policy.json)
- * 请注意官方的policy里面包含了WAF等服务，中国区没有所以需要手动删除
-
+ * 请注意官方的policy里面包含了WAF等服务，中国区没有所以需要手动删除,修改好的已经放在resource/alb-ingress-controller目录下
 
 ```bash
 aws iam create-policy \
@@ -77,10 +74,20 @@ eksctl create iamserviceaccount \
 
 >3.2.2 创建 ALB Ingress Controller 配置文件
  修改alb-ingress-controller.yaml 以下配置
-  - --cluster-name=<步骤2 创建的集群名字>
-  - --aws-vpc-id=<eksctl 创建的vpc-id> #eksctl-<集群名字>-cluster/VPC
-  - --aws-region=cn-northwest-1
+(eksctl 自动创建的 vpc 默认为 eksctl-<集群名字>-cluster/VPC)
   
+  ```bash
+  #修改以下内容
+  - --cluster-name=<步骤2 创建的集群名字>
+  - --aws-vpc-id=<eksctl 创建的vpc-id>   
+  - --aws-region=cn-northwest-1
+  #添加环境变量
+  env:
+            - name: AWS_REGION
+              value: cn-northwest-1
+  
+  ```
+
  ```bash
   curl -LO https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.5/docs/examples/alb-ingress-controller.yaml
   
