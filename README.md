@@ -11,5 +11,6 @@
   * 使用IAM Role for Service Accounts功能(可选)
   
     本实验使用宁夏ZHY(cn-northwest-1)Region
+    
     本文所需要的资源在EKS-Workshop-China/resource/aws-ebs-csi-driver
  
