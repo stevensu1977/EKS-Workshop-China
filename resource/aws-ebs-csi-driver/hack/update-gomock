@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Copyright 2019 The Kubernetes Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+set -euo pipefail
+
+IMPORT_PATH=github.com/kubernetes-sigs/aws-ebs-csi-driver
+
+./bin/mockgen -package=mocks -destination=./pkg/cloud/mocks/mock_ec2.go ${IMPORT_PATH}/pkg/cloud EC2 
+./bin/mockgen -package=mocks -destination=./pkg/cloud/mocks/mock_ec2metadata.go ${IMPORT_PATH}/pkg/cloud EC2Metadata 
+./bin/mockgen -package=mocks -destination=./pkg/driver/mocks/mock_cloud.go ${IMPORT_PATH}/pkg/cloud Cloud
+./bin/mockgen -package=mocks -destination=./pkg/driver/mocks/mock_metadata_service.go ${IMPORT_PATH}/pkg/cloud MetadataService 
+./bin/mockgen -package=mocks -destination=./pkg/driver/mocks/mock_mounter.go ${IMPORT_PATH}/pkg/driver Mounter
+
