@@ -1,0 +1,9 @@
+.DS_Store
+resource/.DS_Store
+resource/ecsdemo-crystal
+resource/ecsdemo-frontend
+resource/ecsdemo-nodejs
+resource/s3-echoer
+resource/hpa/metrics-server-v0.3.6.tar.gz
+resource/hpa/metrics-server-v0.3.6/*
+resource/eks-efs/aws-efs-csi-driver

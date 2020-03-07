@@ -2,7 +2,7 @@
 echo  "CSI Policy ARN| $1"
 
 CSI_ARN=$1
-ROLES=$(aws iam list-roles --query 'Roles[?contains(RoleName,`nodegroup`)].RoleName' --output text)
+ROLES=$(aws iam list-roles --query 'Roles[?contains(RoleName,`nodegr`)].RoleName' --output text)
 
 for i in $ROLES
 do
