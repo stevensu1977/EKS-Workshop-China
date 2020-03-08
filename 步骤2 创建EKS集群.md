@@ -154,3 +154,13 @@ kubectl get pod nginx-gcr-deployment-xxxx -o=jsonpath='{.spec.containers[0].imag
 # 清理
 kubectl delete -f ./nginx-gcr.yaml
 ```
+
+注意：China region EKS service have two official account id, cn-northwest-1 961992271922, cn-north-1 91830976355，因此如果你需要下载EKS 官方的镜像，需要正确使用上面的两个id
+```bash
+#例如宁夏区
+#aws-efs-csi-driver
+961992271922.dkr.ecr.cn-northwest-1.amazonaws.com.cn/eks/aws-efs-csi-driver
+
+#aws-ebs-csi-driver
+961992271922.dkr.ecr.cn-northwest-1.amazonaws.com.cn/eks/aws-ebs-csi-driver
+```
