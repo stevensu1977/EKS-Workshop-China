@@ -112,7 +112,33 @@ The latest tag does work
 # 2. image location for China region
 kubectl apply -k ./deploy/kubernetes/overlays/stable
 kubectl get pods -n kube-system
-mount.efs --version
+
+NAME                                      READY   STATUS    RESTARTS   AGE
+alb-ingress-controller-649b854d75-m8c75   1/1     Running   0          2d18h
+aws-node-ct6rz                            1/1     Running   0          4d18h
+aws-node-sfjtn                            1/1     Running   0          3d21h
+aws-node-xzfx9                            1/1     Running   0          4d18h
+coredns-6565755d58-pd5nm                  1/1     Running   0          4d18h
+coredns-6565755d58-v9nl7                  1/1     Running   0          4d18h
+ebs-csi-controller-6dcc4dc6f4-6k4s5       4/4     Running   0          2d17h
+ebs-csi-controller-6dcc4dc6f4-vtklz       4/4     Running   0          2d17h
+ebs-csi-node-2zmct                        3/3     Running   0          2d17h
+ebs-csi-node-plljf                        3/3     Running   0          2d17h
+ebs-csi-node-s9lbz                        3/3     Running   0          2d17h
+efs-csi-node-5jtlc                        3/3     Running   0          10h
+efs-csi-node-lqdz9                        3/3     Running   0          10h
+efs-csi-node-snqmh                        3/3     Running   0          10h
+kube-proxy-g4mcw                          1/1     Running   0          4d18h
+kube-proxy-mb88w                          1/1     Running   0          4d18h
+kube-proxy-tpx4x                          1/1     Running   0          3d21h
+kubernetes-dashboard-5f7b999d65-dcc6h     1/1     Running   0          2d23h
+metrics-server-7fcf9cc98b-rntrh           1/1     Running   0          44h
+
+kubectl exec -ti efs-csi-node-5jtlc -n kube-system -- mount.efs --version
+# Make sure the version is > 1.19
+# If your version is < 1.19, update the efs-utils
+kubectl exec -ti efs-csi-node-5jtlc -n kube-system -- /bin/bash
+yum update -y amazon-efs-utils && mount.efs --version
 ```
 
 6.2.2.2 部署样例测试
