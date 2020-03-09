@@ -3,16 +3,17 @@
 2.1 使用eksctl 创建EKS集群(操作需要10-15分钟),该命令同时会创建一个使用t3.small的受管节点组。
 
  ```bash
+ #设置默认region cn-northwest-1 
+ $export AWS_DEFAULT_REGION=cn-northwest-1
+ 
  #可以修改
- --node-type 工作节点类型
- --nodes 工作节点数量
+ #--node-type 工作节点类型
+ #--nodes 工作节点数量
  
  eksctl create cluster \
        --name eksworkshop \
-       --version 1.14 \
        --node-type t3.small \
-       --nodes 1 \
-       --region cn-northwest-1
+              
  ```
  
  ![](media/15764759782724/15764761011094.jpg)
@@ -27,7 +28,7 @@
 
 2.2 部署一个nginx测试eks集群基本功能
 
-> 编辑nginx.yaml,内容如下
+> resource/nginx.yaml
 
 ```yaml
 ---
@@ -70,9 +71,16 @@ spec:
  > 部署nginx
  
  ```bash
- kubectl apply -f nginx.yaml
+ kubectl apply -f resource/nginx-app
+ 
+ #查看deployment ,service 
+ kubectl get deploy,svc
+ 
+ #可以通过 service/service-nginx 显示的EXTERNAL-IP访问nginx应用
+ curl -v $(kubectl get svc | grep service-nginx | awk '{print $4}')
  ```
 
-
+![-w1306](media/15832910610879/15837427165613.jpg)
+ 
 
 
