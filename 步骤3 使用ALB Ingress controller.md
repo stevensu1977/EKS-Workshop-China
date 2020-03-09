@@ -2,29 +2,32 @@
 
 3.1 创建ALB Ingress Controller所需要的IAM policy , EKS OIDC provider, service account
 
-> 3.1.1 创建EKS OIDC Provider (这个操作只需要做一次）
+> 3.1.1 创建EKS OIDC Provider (在整个实验中只需要操作1次）
 
 ```bash
 eksctl utils associate-iam-oidc-provider --cluster=eksworkshop --approve 
              
 ```
 
+修改OIDC Provider的Audience, 选择IAM服务>Providers>
+![-w738](media/15832934698484/15837578824712.jpg)
+点击Add an Audience , 输入sts.amazonaws.com,点击保存
+![-w1079](media/15832934698484/15837579358417.jpg)
+
+
 > 3.1.2 创建所需要的IAM policy
-[https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.5/docs/examples/iam-policy.json](https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.5/docs/examples/iam-policy.json)
- * 请注意官方的policy里面包含了WAF等服务，中国区没有所以需要手动删除,修改好的已经放在resource/alb-ingress-controller目录下
 
 ```bash
 aws iam create-policy \
     --policy-name ALBIngressControllerIAMPolicy \
-    --policy-document file://./iam-policy.json \
-    --region cn-northwest-1
-        
-#返回示例,请记录返回的Plociy ARN
+    --policy-document file://./resource/alb-ingress-controller/iam-policy.json
+    
+#请记录返回的ALBIngressControllerIAMPolicy的ARN
 {
     "Policy": {
         "PolicyName": "ALBIngressControllerIAMPolicy",
         "PolicyId": "ANPASX274AZPIN2MOYJLS",
-        "Arn": "arn:aws-cn:iam::188642756190:policy/ALBIngressControllerIAMPolicy",
+        "Arn": "arn:aws-cn:iam::999999999999:policy/ALBIngressControllerIAMPolicy",
         "Path": "/",
         "DefaultVersionId": "v1",
         "AttachmentCount": 0,
@@ -39,62 +42,49 @@ aws iam create-policy \
 >3.1.3 请使用上述返回的policy ARN创建service account
 
 ```bash
+ALB_POLICY=$(aws iam  list-policies  --query 'Policies[?contains(PolicyName,`ALBIngressControllerIAMPolicy`)]' --output text |awk {'print $1'})
+
 eksctl create iamserviceaccount \
-       --cluster=<集群名字> \
+       --cluster=eksworkshop \
        --namespace=kube-system \
        --name=alb-ingress-controller \
-       --attach-policy-arn=<policy ARN> \
+       --attach-policy-arn=$ALB_POLICY \
        --override-existing-serviceaccounts \
-       --region cn-northwest-1 \
        --approve
 
 ```
 
-> 3.1.4 eksctl 0.15-rc 已知issue, https://github.com/weaveworks/eksctl/issues/1871, 需要手动修复.
 
-在IAM找到eksctl创建的role , 关键词iamserviceaccount
-![](media/15832934698484/15833075255425.jpg)
-选择Trust relationship, 点击Edit trust relationship
-![](media/15832934698484/15833076008289.jpg)
-将"Federated":"arn:aws:iam::"
-修改为: "Federated": "arn:aws-cn:iam::"
-![](media/15832934698484/15833076362581.jpg)
+打开IAM>Role 输入iamserviceaccount 找到你刚才创建的role 点击Trust  ![-w797](media/15832934698484/15837580420522.jpg)
+relationships, StringEquals里面的"sts.amazonaws.com.cn" 修改为"sts.amazonaws.com"
 
- 
+修改后的截图
+![-w964](media/15832934698484/15837581990630.jpg)
+
+
 3.2 部署 ALB Ingress Controller
  
- >3.2.1 创建 ALB Ingress Controller 所需要的RBAC
- 
  ```bash
-  curl -LO https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.5/docs/examples/rbac-role.yaml
-  
- kubectl apply -f rbac-role.yaml
+   
+ kubectl apply -f ./resource/alb-ingress-controller/rbac-role.yaml
  
- ```
-
->3.2.2 创建 ALB Ingress Controller 配置文件
- 修改alb-ingress-controller.yaml 以下配置
-(eksctl 自动创建的 vpc 默认为 eksctl-<集群名字>-cluster/VPC)
+ #修改 ./resource/alb-ingress-controller/alb-ingress-controller.yaml中的aws-vpc-id , 其他参数，环境变量示例文件已经配置好了.
+ #(eksctl 自动创建的 vpc 默认为 eksctl-<集群名字>-cluster/VPC)
   
-  ```bash
-  #修改以下内容
-  - --cluster-name=<步骤2 创建的集群名字>
+ 
+  #修改集群名字,aws-vpc-id
+  - --cluster-name=eksworkshop
   - --aws-vpc-id=<eksctl 创建的vpc-id>   
   - --aws-region=cn-northwest-1
-  #添加环境变量
+  
+  #需要添加环境变量
   env:
             - name: AWS_REGION
               value: cn-northwest-1
   
-  ```
-
- ```bash
-  curl -LO https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.5/docs/examples/alb-ingress-controller.yaml
-  
-  #修改alb-ingress-controller.yaml
-  
+    
   #部署ALB Ingress Controller
- kubectl apply -f alb-ingress-controller.yaml
+ kubectl apply -f ./resource/alb-ingress-controller/alb-ingress-controller.yaml
  
  #确认ALB Ingress Controller是否工作
  kubectl logs -n kube-system $(kubectl get po -n kube-system | egrep -o alb-ingress[a-zA-Z0-9-]+)
@@ -105,11 +95,11 @@ eksctl create iamserviceaccount \
 
     
 
-    
- 3.3 使用ALB Ingress   
->3.3.1 为nginx service创建ingress
-所以我们重新创建一个使用clusterip的service 
+3.3 使用ALB Ingress   
 
+我们重新创建一个使用ClusterIP的service 指向实验2的 nginx-app
+
+nginx-ingress.yaml
 ```bash
 ---
 apiVersion: v1
@@ -152,9 +142,7 @@ spec:
 
 ```bash
 kubectl get ingress
-NAME          HOSTS   ADDRESS                                                                          PORTS   AGE
-alb-ingress   *       c5e13198-default-albingres-d740-1661034229.cn-northwest-1.elb.amazonaws.com.cn   80      36m
 
-curl -v c5e13198-default-albingres-d740-1661034229.cn-northwest-1.elb.amazonaws.com.cn
+curl -v $(kubectl get ingress | grep alb-ingress | awk '{print $4}')
 ```
 
