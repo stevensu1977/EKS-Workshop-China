@@ -11,7 +11,7 @@
    * 使用IAM Role for Service Accounts 进行权限控制
   
 * 说明
- 本教程支持宁夏(cn-northwest-1) / 北京(cn-north-1) Region
- 实验所需要的示例、配置文件存放在 resource/ 目录
+   * 本教程支持宁夏(cn-northwest-1) / 北京(cn-north-1) Region
+   * 实验所需要的示例、配置文件存放在 resource/目录
  
  
