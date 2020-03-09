@@ -104,7 +104,7 @@ cd aws-efs-csi-driver
 https://github.com/kubernetes-sigs/aws-efs-csi-driver/issues/138
 
 v0.2.0 image contains old version of efs-utils, efs-utils added China region support from v1.19
-The latest tag does work
+The v.0.3.0 does work, you can also use the awsguru/aws-efs-csi-driver/v0.2.1
 
 ```bash
 # 修改 aws-efs-csi-driver/deploy/kubernetes/overlays/stable/kustomization.yaml
