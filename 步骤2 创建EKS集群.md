@@ -164,3 +164,18 @@ kubectl delete -f ./nginx-gcr.yaml
 #aws-ebs-csi-driver
 961992271922.dkr.ecr.cn-northwest-1.amazonaws.com.cn/eks/aws-ebs-csi-driver
 ```
+
+2.5 (可选) Kubernetes service different expose type
+
+尽管每个Pod都有一个唯一的IP地址，但是如果没有Service，这些IP不会暴露在群集外部。 Service 允许您的应用程序接收流量
+
+Services 可以根据ServiceSpec中定义的Type被暴露为不同的方式:
+
+1. ClusterIP (default) - Exposes the Service on an internal IP in the cluster. This type makes the Service only reachable from within the cluster.
+2. NodePort - Exposes the Service on the same port of each selected Node in the cluster using NAT. Makes a Service accessible from outside the cluster using <NodeIP>:<NodePort>. Superset of ClusterIP.
+3. LoadBalancer - Creates an external load balancer in the current cloud (if supported) and assigns a fixed, external IP to the Service. Superset of NodePort.
+4. ExternalName - Exposes the Service using an arbitrary name (specified by externalName in the spec) by returning a CNAME record with the name. No proxy is used. This type requires v1.7 or higher of kube-dns.
+
+通过一个简单实验解释不同的ServiceSpec类型，详情参考
+
+[ServiceSpec type](Service-SourceIP.md)
