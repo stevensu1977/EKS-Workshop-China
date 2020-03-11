@@ -226,7 +226,7 @@ kubectl apply -f nginx-alb-ingress.yaml
 ALB=$(kubectl get ingress -o json | jq -r '.items[0].status.loadBalancer.ingress[].hostname')
 curl -m3 -v $ALB
 
-# 如果遇到问题，请查看入职
+# 如果遇到问题，请查看日志
 kubectl logs -n kube-system $(kubectl get po -n kube-system | egrep -o alb-ingress[a-zA-Z0-9-]+)
 ```
 

@@ -26,7 +26,7 @@ eksctl create iamserviceaccount --name s3-echoer --namespace default \
 https://github.com/weaveworks/eksctl/issues/1871, 需要手动修复。eksctl 0.15-rc.1已经修复这个问题
 
 
-7.2 部署测试应用
+7.2 部署测试访问S3的应用
 *请确保bucket名字唯一,s3 bucket才能创建成功
 
 ```bash
@@ -61,4 +61,33 @@ aws s3api list-objects --bucket $TARGET_BUCKET --query 'Contents[].{Key: Key, Si
 
 #清理
 kubectl delete job/s3-echoer
+```
+
+7.3 部署第二个测试应用
+```bash
+# download pod yaml
+curl -LO https://eksworkshop.com/beginner/110_irsa/deploy.files/iam-pod.yaml
+# replace the serviceAccountName: s3-echoer
+# add the env AWS_DEFAULT_REGION or AWS_REGION to resolve issue: An error occurred (InvalidIdentityToken) when calling the AssumeRoleWithWebIdentity operation: No OpenIDConnect provider found in your account for
+
+# Apply the testing
+kubectl apply -f iam-pod.yaml
+deployment.apps/eks-iam-test created
+
+kubectl get pod -l app=eks-iam-test
+NAME                            READY   STATUS    RESTARTS   AGE
+eks-iam-test-76cfbb6fdc-qqn7m   1/1     Running   0          85s
+
+# verify the sa work
+kubectl exec -it <place Pod Name> /bin/bash
+# In promote input, the output Arn should looks like assumed-role/eksctl-gcr-zhy-eksworkshop-addon-iamservicea-Role
+aws sts get-caller-identity
+# output shoudld list all the S3 bucket in AWS_REGION under the account 
+aws s3 ls
+aws ec2 describe-instances
+# output should be like: An error occurred (UnauthorizedOperation) when calling the DescribeInstances operation: You are not authorized to perform this operation.
+
+# cleanup
+kubectl delete -f iam-pod.yaml
+
 ```
