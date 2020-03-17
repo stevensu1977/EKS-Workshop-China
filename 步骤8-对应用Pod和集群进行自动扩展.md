@@ -179,7 +179,8 @@ nginx-to-scaleout-84f9cdbd84-snd56   1/1     Running   0          17m
 kubectl logs -f deployment/cluster-autoscaler -n kube-system
 
 #Check the AWS Management Console to confirm that the Auto Scaling groups are scaling up to meet demand. 
-aws ec2 describe-instances --filters "Name=tag:eks:cluster-name,Values=${CLUSTER_NAME}" --query "Reservations[].Instances[].[InstanceId,State.Name]" --region ${AWS_REGION}
+aws ec2 describe-instances --filters "Name=tag:eks:cluster-name,Values=${CLUSTER_NAME}" \
+  --query "Reservations[].Instances[].[InstanceId,State.Name]" --region ${AWS_REGION}
 
 [
     [
