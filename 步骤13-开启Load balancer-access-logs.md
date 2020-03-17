@@ -12,12 +12,11 @@
 # 13.1 配置 Classic load balancer 访问日志
 ## 按照文档配置存储日志的 S3 bucket
 - [AWS CLB 访问日志官方文档](https://docs.amazonaws.cn/en_us/elasticloadbalancing/latest/classic/enable-access-logs.html)
-- [kubernetes 关于 CLB annotations 官方文档](https://kubernetes.io/docs/concepts/cluster-administration/cloud-providers/#load-balancers)
 
 注意：
 1. S3 Bucket 必须与 Classic load balancer 位于同一区域
 2. 存储桶策略必须授予将访问日志写入存储桶的权限。
-参考存储桶策略，请将占位符替换为您的存储桶的 <bucket_name> 和<prefix>，AWS账户的ID <aws-account-id>
+参考存储桶策略，请将占位符替换为您的存储桶的 {bucket_name} 和 {prefix}，以及AWS账户的ID {aws-account-id}
 - aws-account-id Beijing: 638102146993
 - aws-account-id Ningxia: 037604701340
 ```json
@@ -27,17 +26,19 @@
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "arn:aws-cn:iam::<aws-account-id>:root"
+        "AWS": "arn:aws-cn:iam::{aws-account-id}:root"
       },
       "Action": "s3:PutObject",
-      "Resource": "arn:aws-cn:s3:::<bucket-name>/<prefix>/*"
+      "Resource": "arn:aws-cn:s3:::<bucket-name>/{prefix}/*"
     }
   ]
 }
 ```
 
 ## 添加 The load balancer 服务 AWS annotations
-请将占位符替换为您的存储桶的 <bucket_name> 和 <prefix>
+- [kubernetes 关于 CLB annotations 官方文档](https://kubernetes.io/docs/concepts/cluster-administration/cloud-providers/#load-balancers)
+
+请将占位符替换为您的存储桶的 {bucket_name} 和 {prefix}
 ```yaml
 apiVersion: v1
 kind: Service
@@ -49,7 +50,7 @@ metadata:
         service.beta.kubernetes.io/aws-load-balancer-access-log-emit-interval: "5"
         service.beta.kubernetes.io/aws-load-balancer-access-log-enabled: "true"
         service.beta.kubernetes.io/aws-load-balancer-access-log-s3-bucket-name: <bucket-name>
-        service.beta.kubernetes.io/aws-load-balancer-access-log-s3-bucket-prefix: <prefix>
+        service.beta.kubernetes.io/aws-load-balancer-access-log-s3-bucket-prefix: {prefix}
         
 spec:
   selector:
@@ -83,13 +84,13 @@ kubectl delete -f resource/nginx-app/nginx-clb-access-log.yaml
 ```
 
 # 13.2 配置 aws-alb-ingress-controller 访问日志
-[AWS ALB 访问日志官方文档](https://docs.amazonaws.cn/en_us/elasticloadbalancing/latest/application/load-balancer-access-logs.html)
-[kubernetes 关于 aws-alb-ingress-controller annotations 官方文档](https://github.com/kubernetes-sigs/aws-alb-ingress-controller/blob/master/docs/guide/ingress/annotation.md)
+## 按照文档配置存储日志的 S3 bucket
+- [AWS ALB 访问日志官方文档](https://docs.amazonaws.cn/en_us/elasticloadbalancing/latest/application/load-balancer-access-logs.html)
 
 注意：
 1. S3 Bucket 必须与 Application load balancer 位于同一区域
 2. 存储桶策略必须授予将访问日志写入存储桶的权限。
-参考存储桶策略，请将占位符替换为您的存储桶的 <bucket_name> 和 <prefix>，AWS账户的ID <aws-account-id>，您自己的AWS账户的ID <owner_account_id>
+参考存储桶策略，请将占位符替换为您的存储桶的 {bucket_name} 和 {prefix}，AWS账户的ID {aws-account-id}，您自己的AWS账户的ID {owner_account_id}
 - aws-account-id Beijing: 638102146993
 - aws-account-id Ningxia: 037604701340
 ```json
@@ -99,10 +100,10 @@ kubectl delete -f resource/nginx-app/nginx-clb-access-log.yaml
     {
       "Effect": "Allow",
       "Principal": {
-        "AWS": "arn:aws-cn:iam::<aws-account-id>:root"
+        "AWS": "arn:aws-cn:iam::{aws-account-id}:root"
       },
       "Action": "s3:PutObject",
-      "Resource": "arn:aws-cn:s3:::<bucket-name>/<prefix>/AWSLogs/<owner_account_id>/*"
+      "Resource": "arn:aws-cn:s3:::<bucket-name>/{prefix}/AWSLogs/{owner_account_id}/*"
     },
     {
       "Effect": "Allow",
@@ -110,7 +111,7 @@ kubectl delete -f resource/nginx-app/nginx-clb-access-log.yaml
         "Service": "delivery.logs.amazonaws.com"
       },
       "Action": "s3:PutObject",
-      "Resource": "arn:aws-cn:s3:::<bucket-name>/<prefix>/AWSLogs/<owner_account_id>/*",
+      "Resource": "arn:aws-cn:s3:::<bucket-name>/{prefix}/AWSLogs/{owner_account_id}/*",
       "Condition": {
         "StringEquals": {
           "s3:x-amz-acl": "bucket-owner-full-control"
@@ -130,6 +131,8 @@ kubectl delete -f resource/nginx-app/nginx-clb-access-log.yaml
 ```
 
 ## 添加 aws-alb-ingress-controller 访问日志 annotations
+- [kubernetes 关于 aws-alb-ingress-controller annotations 官方文档](https://github.com/kubernetes-sigs/aws-alb-ingress-controller/blob/master/docs/guide/ingress/annotation.md)
+
 ```yaml
 apiVersion: extensions/v1beta1
 kind: Ingress
@@ -168,14 +171,17 @@ kubectl delete -f resource/nginx-app/nginx-alb-ingress-access-log.yaml
 
 
 # 13.3 配置 Network load balancer 访问日志
+- [kubernetes 对于 AWS NLB access log annotations 支持的 issue](https://github.com/kubernetes/kubernetes/issues/81584)
+根据该 Issue，目前 kubernetes 暂不支持 Network load balancer 访问日志 annotations，因此无法通过类似 CLB 和 aws-alb-ingress-controller 的方式配置 访问日志 
+
+## 下面的配置仅用于验证 NLB access log 暂时不可配置
 ## 按照文档配置存储日志的 S3 bucket
 [AWS NLB 访问日志官方文档](https://docs.amazonaws.cn/en_us/elasticloadbalancing/latest/network/load-balancer-access-logs.html)
-[kubernetes 对于 AWS NLB access log annotations 支持的 issue](https://github.com/kubernetes/kubernetes/issues/81584)
 
 注意：
 1. S3 Bucket 必须与 Network load balancer 位于同一区域
 2. 存储桶策略必须授予将访问日志写入存储桶的权限。
-参考存储桶策略，请将占位符替换为您的存储桶的 <bucket_name> 和<prefix>，您自己的AWS账户的ID <owner_account_id>
+参考存储桶策略，请将占位符替换为您的存储桶的 {bucket_name} 和{prefix}，您自己的AWS账户的ID {owner_account_id}
 ```json
 {
   "Version": "2012-10-17",
@@ -187,7 +193,7 @@ kubectl delete -f resource/nginx-app/nginx-alb-ingress-access-log.yaml
         "Service": "delivery.logs.amazonaws.com"
       },
       "Action": "s3:PutObject",
-      "Resource": "arn:aws-cn:s3:::<bucket_name>/<prefix>/AWSLogs/<owner_account_id>/*",
+      "Resource": "arn:aws-cn:s3:::{bucket_name}/{prefix}/AWSLogs/{owner_account_id}/*",
       "Condition": {
         "StringEquals": {
           "s3:x-amz-acl": "bucket-owner-full-control"
@@ -201,7 +207,7 @@ kubectl delete -f resource/nginx-app/nginx-alb-ingress-access-log.yaml
         "Service": "delivery.logs.amazonaws.com"
       },
       "Action": "s3:GetBucketAcl",
-      "Resource": "arn:aws-cn:s3:::<bucket_name>"
+      "Resource": "arn:aws-cn:s3:::{bucket_name}"
     }
   ]
 }
@@ -240,7 +246,7 @@ NLB=$(kubectl get service nginx-nlb-access-log -o json | jq -r '.status.loadBala
 NLB_NAME=$(echo ${NLB} | cut -d "-" -f 1)
 echo ${NLB_NAME}
 
-# 设置 access log
+# 由于 annotations 为生效，因此打算通过 NLB 命令行 设置 access log
 NLB_ARN=$(aws elbv2 describe-load-balancers --names ${NLB_NAME} --region ${AWS_REGION} --query "LoadBalancers[0].LoadBalancerArn" | sed 's/"//g') 
 echo ${NLB_ARN}
 aws elbv2 modify-load-balancer-attributes --load-balancer-arn ${NLB_ARN} \
