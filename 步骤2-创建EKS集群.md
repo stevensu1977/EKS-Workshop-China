@@ -138,9 +138,9 @@ git clone git@github.com:aws-samples/amazon-api-gateway-mutating-webhook-for-k8.
 cd amazon-api-gateway-mutating-webhook-for-k8
 Deploy cloudformation api-gateway.yaml，注意修改下面的镜像地址为你偏好的地址
 image_mirrors = {
-            'gcr.io/': 'local-gcr-io/',
-            'k8s.gcr.io/': 'local-gcr-io/google-containers/',
-            'quay.io/': 'local-quay-io/'
+            'gcr.io/': '<镜像地址>/',
+            'k8s.gcr.io/': '<镜像地址>/google-containers/',
+            'quay.io/': '<镜像地址>/'
 }
 kubectl apply -f mutating-webhook.yaml
 ```
