@@ -173,7 +173,7 @@ kubectl delete -f resource/nginx-app/nginx-alb-ingress-access-log.yaml
 # 13.3 配置 Network load balancer 访问日志
 - [kubernetes 对于 AWS NLB access log annotations 支持的 issue](https://github.com/kubernetes/kubernetes/issues/81584)
 
-根据该 Issue，目前 kubernetes 暂不支持 Network load balancer 访问日志 annotations，因此无法通过类似 CLB 和 aws-alb-ingress-controller 的方式配置 访问日志 
+**根据该 Issue，目前 kubernetes 暂不支持 Network load balancer 访问日志 annotations，因此无法通过类似 CLB 和 aws-alb-ingress-controller 的方式配置 访问日志**
 
 ## 下面的配置仅用于验证 NLB access log 暂时不可配置
 ### 按照文档配置存储日志的 S3 bucket
@@ -247,7 +247,7 @@ NLB=$(kubectl get service nginx-nlb-access-log -o json | jq -r '.status.loadBala
 NLB_NAME=$(echo ${NLB} | cut -d "-" -f 1)
 echo ${NLB_NAME}
 
-# 由于 annotations 为生效，因此打算通过 NLB 命令行 设置 access log
+# 由于 annotations 没有生效，因此打算通过 NLB 命令行 设置 access log
 NLB_ARN=$(aws elbv2 describe-load-balancers --names ${NLB_NAME} --region ${AWS_REGION} --query "LoadBalancers[0].LoadBalancerArn" | sed 's/"//g') 
 echo ${NLB_ARN}
 aws elbv2 modify-load-balancer-attributes --load-balancer-arn ${NLB_ARN} \
