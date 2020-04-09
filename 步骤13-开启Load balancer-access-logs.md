@@ -172,10 +172,10 @@ kubectl delete -f resource/nginx-app/nginx-alb-ingress-access-log.yaml
 
 # 13.3 配置 Network load balancer 访问日志
 - [kubernetes 对于 AWS NLB access log annotations 支持的 issue](https://github.com/kubernetes/kubernetes/issues/81584)
+- [add accessLogs support for aws nlb PR](https://github.com/kubernetes/kubernetes/pull/78497)
+**根据该 Issue，目前 kubernetes 需要v1.15.0-beta.2以上版本 支持 Network load balancer 访问日志 annotations**
 
-**根据该 Issue，目前 kubernetes 暂不支持 Network load balancer 访问日志 annotations，因此无法通过类似 CLB 和 aws-alb-ingress-controller 的方式配置 访问日志**
-
-## 下面的配置仅用于验证 NLB access log 暂时不可配置
+## 使用 NLB access log annotations
 ### 按照文档配置存储日志的 S3 bucket
 [AWS NLB 访问日志官方文档](https://docs.amazonaws.cn/en_us/elasticloadbalancing/latest/network/load-balancer-access-logs.html)
 
@@ -246,8 +246,17 @@ kubectl get pods -l app=nginx -o wide
 NLB=$(kubectl get service nginx-nlb-access-log -o json | jq -r '.status.loadBalancer.ingress[].hostname')
 NLB_NAME=$(echo ${NLB} | cut -d "-" -f 1)
 echo ${NLB_NAME}
+```
+**NOTE**
+**Access logs are created only if the load balancer has a TLS listener and they contain information only about TLS requests**
 
-# 由于 annotations 没有生效，因此打算通过 NLB 命令行 设置 access log
+https://docs.aws.amazon.com/elasticloadbalancing/latest/network/load-balancer-access-logs.html
+
+```bash
+# 检查 NLB 的 access log已经配置
+aws elbv2 describe-load-balancer-attributes --load-balancer-arn ${NLB_ARN} --region ${AWS_REGION}
+
+# 如果 annotations 没有生效，通过 NLB 命令行 设置 access log
 NLB_ARN=$(aws elbv2 describe-load-balancers --names ${NLB_NAME} --region ${AWS_REGION} --query "LoadBalancers[0].LoadBalancerArn" | sed 's/"//g') 
 echo ${NLB_ARN}
 aws elbv2 modify-load-balancer-attributes --load-balancer-arn ${NLB_ARN} \
@@ -255,10 +264,7 @@ aws elbv2 modify-load-balancer-attributes --load-balancer-arn ${NLB_ARN} \
   --region ${AWS_REGION}
 for i in {1..10}; do curl -m3 -v $NLB; done
 
-# 检查 NLB 的 access log已经配置
-aws elbv2 describe-load-balancer-attributes --load-balancer-arn ${NLB_ARN} --region ${AWS_REGION}
-
-# 检查 S3 bucket，log日志并未生成
+# 检查 S3 bucket，log日志是否生成
 aws s3api list-objects-v2 --bucket ray-nlb-accesslogs-zhy --prefix gcr-zhy-eksworkshop --max-items 10 --region ${AWS_REGION}
 
 # 清理
