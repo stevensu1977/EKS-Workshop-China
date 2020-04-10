@@ -4,7 +4,11 @@ metadata:
   name: bosybox
 spec:
   containers:
-  - name: bosybox
-    image: hub-mirror.c.163.com/library/busybox:latest
-    command: ["/bin/sh"]
-    args: ["-c", "while true; do echo $(date -u) >> /data/out1.txt; sleep 5; done"]
+    - name: bosybox
+      image: busybox:latest
+      command: ["/bin/sh"]
+      args:
+        [
+          "-c",
+          "while true; do echo $(date -u) >> /data/out1.txt; sleep 5; done",
+        ]
