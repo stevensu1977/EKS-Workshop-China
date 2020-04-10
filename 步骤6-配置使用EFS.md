@@ -38,6 +38,28 @@ kubectl apply -f class.yaml
 kubectl apply -f configmap.yaml
 ```
 
+**注意，中国区特别的**
+[Issue: efs-provisioner can not work on EKS on AWS Beijing and Ningxia region](https://github.com/kubernetes-incubator/external-storage/issues/1293)
+```bash
+ProvisioningFailed     persistentvolumeclaim/efs  Error creating provisioned PV object for claim default/efs: PersistentVolume "pvc-76b7ee16-5fc4-11ea-ab77-02aadf7bd768" is invalid: spec.nfs.path: Invalid value: "fs-72d63897.efs.cn-northwest-1.amazonaws.com.cn:/efs-pvc-76b7ee16-5fc4-11ea-ab77-02aadf7bd768": must be an absolute path. Deleting the volume.
+```
+
+正确的解决：
+"dns.name" should be set explicitly, because efs-provisioner didn't default dns domain have a .cn suffix for mainland China.
+
+例如：
+```yaml
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: efs-provisioner
+data:
+  file.system.id: fs-72d63897
+  aws.region: cn-northwest-1
+  provisioner.name: example.com/aws-efs
+  dns.name: "fs-72d63897.efs.cn-northwest-1.amazonaws.com.cn"
+```
+
 6.2.1.2 配置 Deployment and ClusterRole 
 ```bash
 # 获取 Deployment and ClusterRole 
@@ -66,8 +88,6 @@ kubectl apply -f deployment.yaml
 wget https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/aws/efs/deploy/claim.yaml
 wget https://raw.githubusercontent.com/kubernetes-incubator/external-storage/master/aws/efs/deploy/test-pod.yaml
 kubectl apply -f claim.yaml
-# https://github.com/kubernetes-incubator/external-storage/issues/1293
-ProvisioningFailed     persistentvolumeclaim/efs  Error creating provisioned PV object for claim default/efs: PersistentVolume "pvc-76b7ee16-5fc4-11ea-ab77-02aadf7bd768" is invalid: spec.nfs.path: Invalid value: "fs-72d63897.efs.cn-northwest-1.amazonaws.com.cn:/efs-pvc-76b7ee16-5fc4-11ea-ab77-02aadf7bd768": must be an absolute path. Deleting the volume.
 
 # 修改 test-pod.yaml 
 "touch /mnt/SUCCESS && exit 0 || exit 1"
