@@ -14,6 +14,10 @@
   * [步骤9-使用Helm部署应用](步骤9-使用Helm部署应用.md)
   * [步骤10-可用性-健康检查](步骤10-可用性-健康检查.md)
   * [步骤11-使用Calio加固EKS集群安全](步骤11-使用Calio加固EKS集群安全.md)
+  * [步骤12-探索Pod2Service以及VPCPeering的支持](步骤12-探索Pod2Service以及VPCPeering的支持.md)
+  * [步骤13-开启Load balancer-access-logs](步骤13-开启Load-balancer-access-logs.md)
+  * [步骤14-如何配置IngressController的认证.md](步骤14-如何配置IngressController的认证.md)
+  * [步骤15-在EKS集群上部署Istio服务网格](步骤15-在EKS集群上部署Istio服务网格.md)
   
     本实验使用宁夏ZHY(cn-northwest-1)Region
     
