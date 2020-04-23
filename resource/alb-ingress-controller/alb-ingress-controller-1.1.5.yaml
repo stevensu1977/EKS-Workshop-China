@@ -54,6 +54,8 @@ spec:
             # defaults to 10.
             # - --aws-max-retries=10
           env:
+            - name: AWS_REGION
+              value: cn-northwest-1
             # AWS key id for authenticating with the AWS API.
             # This is only here for examples. It's recommended you instead use
             # a project like kube2iam for granting access.
@@ -66,5 +68,5 @@ spec:
             #- name: AWS_SECRET_ACCESS_KEY
             #  value: SECRETVALUE
           # Repository location of the ALB Ingress Controller.
-          image: docker.io/amazon/aws-alb-ingress-controller:v1.1.6
+          image: docker.io/amazon/aws-alb-ingress-controller:v1.1.5
       serviceAccountName: alb-ingress-controller

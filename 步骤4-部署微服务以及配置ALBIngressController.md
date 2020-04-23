@@ -180,11 +180,15 @@ https://github.com/weaveworks/eksctl/issues/1871, 需要手动修复。eksctl 0.
 (eksctl 自动创建的 vpc 默认为 eksctl-<集群名字>-cluster/VPC)
   
   ```bash
+  # alb-ingress-controller 1.1.6 以上版本
+  wget -O resource/alb-ingress-controller/alb-ingress-controller.yaml https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.6/docs/examples/alb-ingress-controller.yaml
+  
   #修改以下内容
   - --cluster-name=<步骤2 创建的集群名字>
   - --aws-vpc-id=<eksctl 创建的vpc-id>   
   - --aws-region=cn-northwest-1
-  #添加环境变量，作为 https://github.com/kubernetes-sigs/aws-alb-ingress-controller/issues/1180 的workaround
+
+  # alb-ingress-controller 1.1.6 一下版本，还需要额外添加环境变量，作为 https://github.com/kubernetes-sigs/aws-alb-ingress-controller/issues/1180 的workaround
   env:
             - name: AWS_REGION
               value: cn-northwest-1
@@ -192,20 +196,16 @@ https://github.com/weaveworks/eksctl/issues/1871, 需要手动修复。eksctl 0.
   ```
 
  ```bash
-  curl -LO https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.5/docs/examples/alb-ingress-controller.yaml
-  
-  #修改alb-ingress-controller.yaml
-  
   #部署ALB Ingress Controller
  kubectl apply -f alb-ingress-controller.yaml
  
  #确认ALB Ingress Controller是否工作
- kubectl logs -n kube-system $(kubectl get po -n kube-system | egrep -o alb-ingress[a-zA-Z0-9-]+)
+ kubectl logs -n kube-system $(kubectl get po -n kube-system | egrep -o "alb-ingress[a-zA-Z0-9-]+")
 
 -------------------------------------------------------------------------------
 AWS ALB Ingress controller
-  Release:    v1.1.5
-  Build:      git-2560c813
+  Release:    v1.1.6
+  Build:      git-95ee2ac8
   Repository: https://github.com/kubernetes-sigs/aws-alb-ingress-controller.git
 -------------------------------------------------------------------------------
 
