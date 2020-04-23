@@ -1,4 +1,4 @@
-# 步骤11 使用Calio加固EKS集群安全
+# 步骤11 使用Calico加固EKS集群安全
 
 Kubernetes Network Policy 网络策略是有关如何允许Pod组与彼此以及其他网络端点进行通信的规范。
 Network Policy资源使用标签选择Pods并定义规则，这些规则指定允许流量到选定Pods。Network policies 由Kubernetes 网络插件实现。

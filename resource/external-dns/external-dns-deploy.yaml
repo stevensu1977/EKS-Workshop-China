@@ -70,7 +70,6 @@ spec:
             - --registry=txt
             - --txt-owner-id=/hostedzone/Z08580531MSSNAPKT4258
             - --zone-id-filter=/hostedzone/Z08580531MSSNAPKT4258
-            https://route53.amazonaws.com.cn
           env:
             - name: AWS_REGION
               value: cn-northwest-1

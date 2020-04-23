@@ -82,6 +82,17 @@ aws route53 list-resource-record-sets --output json --hosted-zone-id ${HOSTZONE_
 可以采用类似 https://github.com/kubernetes-sigs/aws-alb-ingress-controller/issues/1180 添加 环境变量 AWS_REGION解决
 
 **NOTE:level=error msg="RequestError: send request failed\ncaused by: Get https://route53.cn-northwest-1.amazonaws.com.cn/2013-04-01/hostedzone: dial tcp: lookup route53.cn-northwest-1.amazonaws.com.cn on 10.100.0.10:53: no such host"**
+原因是 创建 route53 client的时候应该传递 正确的 中国区 endpoint
+
+```go
+sess, err := session.NewSession(&aws.Config{
+Region: aws.String("cn-northwest-1"),
+Endpoint: aws.String("https://route53.amazonaws.com.cn")},
+)
+client := route53.New(sess)
+```
+
+已经有 https://github.com/kubernetes-sigs/external-dns/issues/1544 进行跟踪这个问题
 
 ExternalDNS supported arguments
 https://github.com/kubernetes-sigs/external-dns/blob/83850ab21dada9c1200ac2be28e6b3021d46c3a5/pkg/apis/externaldns/types.go#L241
@@ -112,6 +123,8 @@ aws route53 list-resource-record-sets --output json --hosted-zone-id ${HOSTZONE_
     --query "ResourceRecordSets[?Name == 'nginx.external-dns-test.ruiliang-zhy.com']|[?Type == 'A']" \
     --endpoint-url https://route53.amazonaws.com.cn --region cn-northwest-1
 
+curl nginx.external-dns-test.ruiliang-zhy.com
+
 ```
 
 ## Verify ExternalDNS works (Ingress example)
@@ -123,6 +136,8 @@ kubectl get pods
 aws route53 list-resource-record-sets --output json --hosted-zone-id ${HOSTZONE_ID} \
     --query "ResourceRecordSets[?Name == 'alb-nginx-ingress.external-dns-test.ruiliang-zhy.com']|[?Type == 'A']" \
     --endpoint-url https://route53.amazonaws.com.cn --region cn-northwest-1
+
+curl alb-nginx-ingress.external-dns-test.ruiliang-zhy.com
 ```
 
 
