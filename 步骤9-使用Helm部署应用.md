@@ -244,3 +244,6 @@ kubectl get pods -l app=ecsdemo-crystal
 kubectl get pods -l app=ecsdemo-frontend
 kubectl get svc ecsdemo-frontend -o wide
 ```
+
+# Reference
+[More EKS Helm Chat sample](https://github.com/aws/eks-charts)
