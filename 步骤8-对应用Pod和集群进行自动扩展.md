@@ -117,7 +117,7 @@ aws iam get-role-policy --role-name $ROLE_NAME --policy-name ASG-Policy-For-Work
 # Deploy CA
 kubectl apply -f cluster_autoscaler.yml
 kubectl get pod -n kube-system -o wide \
-    $(kubectl get po -n kube-system | egrep -o cluster-autoscaler[a-zA-Z0-9-]+)
+    $(kubectl get po -n kube-system | egrep -o "cluster-autoscaler[a-zA-Z0-9-]+")
 kubectl logs -f deployment/cluster-autoscaler -n kube-system
 
 # Failed to list *v1.DaemonSet: daemonsets.apps is forbidden: User "system:serviceaccount:kube-system:cluster-autoscaler" cannot list resource "daemonsets" in API group "apps" at the cluster scope
