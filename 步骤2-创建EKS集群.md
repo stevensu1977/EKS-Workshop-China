@@ -97,10 +97,10 @@ kubectl apply -f nginx-nlb.yaml --namespace test
 
 ## Check deployment status
 kubectl get pods -n test
-kubectl get deployment nginx-deployment -n test
+kubectl get deployment nginx-nlb-deployment -n test
 
 ## Get the external access 确保 EXTERNAL-IP是一个有效的AWS Network Load Balancer的地址
-kubectl get service service-nginx -o wide -n test
+kubectl get service service-nginx-nlb -o wide -n test
 
 ## 下面可以试着访问这个地址
 ELB=$(kubectl get service service-nginx -n test -o json | jq -r '.status.loadBalancer.ingress[].hostname')
@@ -138,6 +138,23 @@ ip-192-168-86-36.cn-northwest-1.compute.internal    Ready    <none>   3d4h   v1.
 2.4 （可选）中国区镜像处理
 
 由于防火墙或安全限制，海外gcr.io, quay.io的镜像可能无法下载，为了不手动修改原始yaml文件的镜像路径，采用下面webhook的方式，自动修改国内配置的镜像路径。
+
+### 快速上手版
+```bash
+git clone https://github.com/nwcdlabs/container-mirror.git
+cd container-mirror
+kubectl apply -f webhook/mutating-webhook.yaml
+
+# 验证 pod 详细信息中的image 已经替换为本项目对应的 ECR 镜像仓库
+kubectl run --generator=run-pod/v1 test --image=k8s.gcr.io/coredns:1.3.1
+kubectl get pod test -o=jsonpath='{.spec.containers[0].image}'
+# 结果应显示为048912060910.dkr.ecr.cn-northwest-1.amazonaws.com.cn/gcr/google_containers/coredns:1.3.1
+
+# 清理
+kubectl delete pod test
+```
+
+### 自己部署Amazon API Gateway和Webhook
 详情参考 [amazon-api-gateway-mutating-webhook-for-k8](https://github.com/aws-samples/amazon-api-gateway-mutating-webhook-for-k8)
 1. 克隆 amazon-api-gateway-mutating-webhook-for-k8
 ```bash
