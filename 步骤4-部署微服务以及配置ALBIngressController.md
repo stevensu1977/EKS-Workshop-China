@@ -134,19 +134,19 @@ echo ${POLICY_NAME}
 
 ```bash
 eksctl create iamserviceaccount --cluster=${CLUSTER_NAME} --namespace=kube-system \
-  --name=alb-ingress-controller --attach-policy-arn=${POLICY_NAME} \
+  --name=aws-load-balancer-controller --attach-policy-arn=${POLICY_NAME} \
   --override-existing-serviceaccounts --region ${AWS_REGION} --approve
 [ℹ]  eksctl version 0.15.0-rc.1
 [ℹ]  using region cn-northwest-1
-[ℹ]  1 iamserviceaccount (kube-system/alb-ingress-controller) was included (based on the include/exclude rules)
+[ℹ]  1 iamserviceaccount (kube-system/aws-load-balancer-controller) was included (based on the include/exclude rules)
 [!]  metadata of serviceaccounts that exist in Kubernetes will be updated, as --override-existing-serviceaccounts was set
-[ℹ]  1 task: { 2 sequential sub-tasks: { create IAM role for serviceaccount "kube-system/alb-ingress-controller", create serviceaccount "kube-system/alb-ingress-controller" } }
-[ℹ]  building iamserviceaccount stack "eksctl-gcr-zhy-eksworkshop-addon-iamserviceaccount-kube-system-alb-ingress-controller"
-[ℹ]  deploying stack "eksctl-gcr-zhy-eksworkshop-addon-iamserviceaccount-kube-system-alb-ingress-controller"
-[ℹ]  created serviceaccount "kube-system/alb-ingress-controller"
+[ℹ]  1 task: { 2 sequential sub-tasks: { create IAM role for serviceaccount "kube-system/aws-load-balancer-controller", create serviceaccount "kube-system/aws-load-balancer-controller" } }
+[ℹ]  building iamserviceaccount stack "eksctl-gcr-zhy-eksworkshop-addon-iamserviceaccount-kube-system-aaws-load-balancer-controller"
+[ℹ]  deploying stack "eksctl-gcr-zhy-eksworkshop-addon-iamserviceaccount-kube-system-aws-load-balancer-controller"
+[ℹ]  created serviceaccount "kube-system/aws-load-balancer-controller"
 
 # Check to see if the controller is currently installed.
-kubectl get deployment -n kube-system alb-ingress-controller
+kubectl get deployment -n kube-system aws-load-balancer-controller
 ```
 
 > 4.2.1.4 (可选）eksctl 0.15-rc.0 已知issue 处理
