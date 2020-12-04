@@ -110,27 +110,29 @@ eksctl utils associate-iam-oidc-provider --cluster=${CLUSTER_NAME} --approve --r
  * 请注意官方的policy里面包含了WAF等服务，中国区没有所以需要手动删除,修改好的已经放在resource/alb-ingress-controller目录下
 
 ```bash
+# 方案1： 官方文件
+# All Regions other than China Regions.
+curl -o iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy.json
+
+# Beijing and Ningxia China Regions.
+curl -o iam-policy.json https://raw.githubusercontent.com/kubernetes-sigs/aws-load-balancer-controller/main/docs/install/iam_policy_cn.json
+
+aws iam create-policy --policy-name ALBIngressControllerIAMPolicy \
+    --policy-document file://iam-policy.json
+
+# 方案2： 也可以使用本项目修改好的文件
 cd resource/alb-ingress-controller
 aws iam create-policy --policy-name ALBIngressControllerIAMPolicy \
   --policy-document file://./ingress-iam-policy.json --region ${AWS_REGION}
 
 # 记录返回的Plociy ARN
 POLICY_NAME=$(aws iam list-policies --query 'Policies[?PolicyName==`ALBIngressControllerIAMPolicy`].Arn' --output text --region ${AWS_REGION})
-
+echo ${POLICY_NAME}
 ```
 
 >4.2.1.3 请使用上述返回的policy ARN创建service account
 
 ```bash
-eksctl create iamserviceaccount \
-       --cluster=<集群名字> \
-       --namespace=kube-system \
-       --name=alb-ingress-controller \
-       --attach-policy-arn=<policy ARN> \
-       --override-existing-serviceaccounts \
-       --region cn-northwest-1 \
-       --approve
-
 eksctl create iamserviceaccount --cluster=${CLUSTER_NAME} --namespace=kube-system \
   --name=alb-ingress-controller --attach-policy-arn=${POLICY_NAME} \
   --override-existing-serviceaccounts --region ${AWS_REGION} --approve
@@ -142,6 +144,9 @@ eksctl create iamserviceaccount --cluster=${CLUSTER_NAME} --namespace=kube-syste
 [ℹ]  building iamserviceaccount stack "eksctl-gcr-zhy-eksworkshop-addon-iamserviceaccount-kube-system-alb-ingress-controller"
 [ℹ]  deploying stack "eksctl-gcr-zhy-eksworkshop-addon-iamserviceaccount-kube-system-alb-ingress-controller"
 [ℹ]  created serviceaccount "kube-system/alb-ingress-controller"
+
+# Check to see if the controller is currently installed.
+kubectl get deployment -n kube-system alb-ingress-controller
 ```
 
 > 4.2.1.4 (可选）eksctl 0.15-rc.0 已知issue 处理
