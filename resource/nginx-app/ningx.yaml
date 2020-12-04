@@ -1,16 +1,16 @@
 ---
-apiVersion: extensions/v1beta1
+apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: nginx-deployment
+  name: nginx-clb-deployment
   labels:
-    app: nginx
+    app: nginx-clb
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        app: nginx
+        app: nginx-clb
     spec:
       containers:
       - name: nginx
@@ -21,12 +21,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: "service-nginx"
+  name: "service-nginx-clb"
   annotations:
-        service.beta.kubernetes.io/aws-load-balancer-type: nlb
+        service.beta.kubernetes.io/aws-load-balancer-type: clb
 spec:
   selector:
-    app: nginx
+    app: nginx-clb
   type: LoadBalancer
   ports:
   - protocol: TCP

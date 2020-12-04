@@ -18,9 +18,15 @@ AWS_REGION=cn-northwest-1
 AWS_DEFAULT_REGION=cn-northwest-1
 CLUSTER_NAME=gcr-zhy-eksworkshop
 
-eksctl create cluster --name=${CLUSTER_NAME} --version 1.14 、
+eksctl create cluster --name=${CLUSTER_NAME} --version 1.14 \
   --nodes=2 --node-type t3.medium --managed --alb-ingress-access --region=${AWS_REGION}
 
+# update for 1.18
+eksctl create cluster --name=${CLUSTER_NAME} --version 1.18 \
+--region=${AWS_REGION} --nodegroup-name ${CLUSTER_NAME}-nodes \
+--nodes 3 --nodes-min 1 --nodes-max 4 --with-oidc \
+--ssh-access --ssh-public-key key-pair-cn-northwest1 \
+--managed
  ```
  
 参考输出

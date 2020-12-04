@@ -179,6 +179,12 @@ https://github.com/weaveworks/eksctl/issues/1871, 需要手动修复。eksctl 0.
  修改alb-ingress-controller.yaml 以下配置，参考示例 resource/alb-ingress-controller/alb-ingress-controller.yaml
 (eksctl 自动创建的 vpc 默认为 eksctl-<集群名字>-cluster/VPC)
   
+特别注意,如果你在中国区使用最新版本1.1.7会有WAF,WAFV2 issue
+
+https://github.com/aws-samples/eks-workshop-greater-china/issues/31
+
+需要添加--feature-gates=waf=false,wafv2=false 参数
+
   ```bash
   # alb-ingress-controller 1.1.6 以上版本
   wget -O resource/alb-ingress-controller/alb-ingress-controller.yaml https://raw.githubusercontent.com/kubernetes-sigs/aws-alb-ingress-controller/v1.1.6/docs/examples/alb-ingress-controller.yaml
@@ -187,8 +193,11 @@ https://github.com/weaveworks/eksctl/issues/1871, 需要手动修复。eksctl 0.
   - --cluster-name=<步骤2 创建的集群名字>
   - --aws-vpc-id=<eksctl 创建的vpc-id>   
   - --aws-region=cn-northwest-1
+  #1.1.7 waf,wafv2修复方式
+  # 如果你使用alb-ingress-controller 1.1.7 需要禁用waf,wafv2
+  - --feature-gates=waf=false,wafv2=false
 
-  # alb-ingress-controller 1.1.6 一下版本，还需要额外添加环境变量，作为 https://github.com/kubernetes-sigs/aws-alb-ingress-controller/issues/1180 的workaround
+  # alb-ingress-controller 1.1.6 以下版本，还需要额外添加环境变量，作为 https://github.com/kubernetes-sigs/aws-alb-ingress-controller/issues/1180 的workaround
   env:
             - name: AWS_REGION
               value: cn-northwest-1
