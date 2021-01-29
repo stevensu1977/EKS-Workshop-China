@@ -21,6 +21,8 @@
 - [步骤 14-如何配置 IngressController 的认证.md](步骤14-如何配置IngressController的认证.md)
 - [步骤 15-在 EKS 集群上部署 Istio 服务网格](步骤15-在EKS集群上部署Istio服务网格.md)
 - [步骤 16-使用 ExternalDNS](步骤16-使用ExternalDNS.md)
+- [步骤 17-Windows pod in EKS](https://github.com/liangruibupt/aws-is-how/blob/master/container/Windows-pod-EKS.md)
+- [步骤 18-部署 Stateful Microservices with Amazon FSx Lustre](Deploying-Amazon-FSx-Lustre.md)
 
   本实验使用宁夏 ZHY(cn-northwest-1)Region
 
